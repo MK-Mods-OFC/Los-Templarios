@@ -27,8 +27,8 @@ body:
       label: Instance
       description: Which instance are you using?
       options:
-        - "Main Stable (shinpuru#4878 / shnp.de)"
-        - "Main Canary (shinpuru Canary#3479 / c.shnp.de)"
+        - "Main Stable (MK-Bot#4878 / bot.mkmods.space)"
+        - "Main Canary (Los-Templarios#3479 / bot.los-templarios.com)"
         - "3rd Party Hosted (something else)"
         - "Selfhosted Docker"
         - "Selfhosted Binaries"

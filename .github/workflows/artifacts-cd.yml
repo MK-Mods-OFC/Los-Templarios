@@ -66,14 +66,14 @@ jobs:
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-        run: go build -o ./bin/shinpuru-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/shinpuru/main.go
+        run: go build -o ./bin/MK-Bot-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/MK-Bot/main.go
       - name: Rename Windows Binary
         if: ${{ matrix.goos == 'windows' }}
         env:
-          FNAME: ./bin/shinpuru-${{ matrix.goos }}-${{ matrix.goarch }}
+          FNAME: ./bin/MK-Bot-${{ matrix.goos }}-${{ matrix.goarch }}
         run: mv ${{ env.FNAME }} ${{ env.FNAME }}.exe
       - name: Upload Artifcats
         uses: actions/upload-artifact@v2
         with:
-          name: shinpuru-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: MK-Bot-${{ matrix.goos }}-${{ matrix.goarch }}
           path: bin/
