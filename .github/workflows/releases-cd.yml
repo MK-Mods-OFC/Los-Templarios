@@ -1,0 +1,149 @@
+name: Releases CD
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  frontend:
+    name: Build Frontend Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        working-directory: ./web
+        run: yarn
+      - name: Build Web App
+        working-directory: ./web
+        run: npx ng build --configuration production --output-path ../bin/web/dist/web
+      - name: Upload Artifcats
+        uses: actions/upload-artifact@v2
+        with:
+          name: frontend
+          path: bin/web/dist/web
+          retention-days: 1
+
+  backend:
+    name: Build Backend Artifacts
+    runs-on: ubuntu-latest
+    needs:
+      - frontend
+    strategy:
+      matrix:
+        goos:
+          - linux
+          - windows
+          - darwin
+        goarch:
+          - amd64
+          - arm64
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: '1.18'
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Retrieve frontend files
+        uses: actions/download-artifact@v2
+        with:
+          name: frontend
+          path: internal/util/embedded/webdist
+      - name: Get dependencies
+        run: go get -v ./...
+      - name: Populate info embeds
+        run: bash ./ci/populateinfo.sh
+      - name: Build Backend (${{ matrix.goos }}-${{ matrix.goarch }})
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: go build -o ./bin/shinpuru-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/shinpuru/main.go
+      - name: Rename Windows Binary
+        if: ${{ matrix.goos == 'windows' }}
+        env:
+          FNAME: ./bin/shinpuru-${{ matrix.goos }}-${{ matrix.goarch }}
+        run: mv ${{ env.FNAME }} ${{ env.FNAME }}.exe
+      - name: Upload Artifcats
+        uses: actions/upload-artifact@v2
+        with:
+          name: backend
+          path: bin/
+          retention-days: 1
+
+  setup:
+    name: Build Setup CLI Artifacts
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos:
+          - linux
+          - windows
+          - darwin
+        goarch:
+          - amd64
+          - arm64
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: '1.18'
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Get dependencies
+        run: go get -v ./...
+      - name: Build CLI (${{ matrix.goos }}-${{ matrix.goarch }})
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: go build -o ./bin/setup-${{ matrix.goos }}-${{ matrix.goarch }} ./cmd/setup/main.go
+      - name: Rename Windows Binary
+        if: ${{ matrix.goos == 'windows' }}
+        env:
+          FNAME: ./bin/setup-${{ matrix.goos }}-${{ matrix.goarch }}
+        run: mv ${{ env.FNAME }} ${{ env.FNAME }}.exe
+      - name: Upload Artifcats
+        uses: actions/upload-artifact@v2
+        with:
+          name: setup
+          path: bin/
+          retention-days: 1
+
+  deploy:
+    name: Deploy to Releases
+    runs-on: ubuntu-latest
+    needs:
+      - 'setup'
+      - 'backend'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Retrieve backend binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: backend
+          path: bin/
+      - name: Retrieve setup binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: setup
+          path: bin/
+      - name: Inject Version into Changelog
+        run: |-
+          sed -i "s/\[VERSION\]/$(git describe --tags --abbrev=0)/g" CHANGELOG.md
+      - name: Set up Hub
+        run: |-
+          sudo snap install hub --classic
+      - name: Deploy to Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: "hub release create
+          $(ls ./bin -1 | xargs -I % printf '-a ./bin/% ')
+          -F ./CHANGELOG.md
+          $(git describe --tags --abbrev=0)"

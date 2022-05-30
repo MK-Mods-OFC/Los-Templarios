@@ -1,0 +1,269 @@
+# This just marks the version of the config.
+# This is essential for figuring out if the config
+# structure has changed with an update and if the config
+# will be not validly parsed.
+configVersionPleaseDoNotChange: 6
+
+# Discord specific configuration
+discord:
+  # Your bot's token you will get from https://discord.com/developers/applications
+  token: "MzI4NTc5NjU2MzIyMjUyODAx.DySqfg.6ZZznoZ6A6ZfeM2PiKSyQup05MI"
+  # The global prefix which will be always usable on all guilds
+  generalprefix: "sp!"
+  # The Discord ID of the host of the bot
+  # This user will have FULL PERMISSIONS on all guilds
+  ownerid: "221905671296253953"
+  # The client ID of the bot's application account
+  # Get this from https://discord.com/developers/applications
+  clientid: "536916384026722314"
+  # The client secret for the bot's application account
+  # Get this from https://discord.com/developers/applications
+  clientsecret: "273n9awshbr3w7zb5cq3ucbq234q43q"
+  # Specify a maximum of guilds the bot can
+  # be member of. When set to 0, there is
+  # no limit applied.
+  guildslimit: 0
+  # Specify properties for the global command
+  # rate limiter middleware.
+  globalcommandratelimit:
+    # Enable or disable global command rate limit.
+    enabled: true
+    # Rate limit bucket token size.
+    burst: 1
+    # Rate limit bucket token regeneration
+    # in seconds.
+    limitseconds: 10
+  # Discord instance sharding configuration.
+  sharding:
+    # When enabled, shard IDs are automatically
+    # distributed via synced state.
+    autoid: true
+    # Pool defines the ID bin from where the
+    # shard IDs are taken when autoid is enabled.
+    pool: 0
+    # Specify a static shard ID. This is ignored
+    # when autoid is enabled.
+    id: 0
+    # Specifies the total amount of shards.
+    # This must be set, also if you are
+    # using autoid.
+    total: 5
+
+# Default permissions for users and admins
+permissions:
+  # Default permissions for users without any
+  # previleges
+  defaultuserrules:
+  - +sp.etc.*
+  - +sp.chat.*
+  # Default permissions for guild owners
+  # and admins
+  defaultadminrules:
+  - +sp.guild.*
+  - +sp.etc.*
+  - +sp.chat.*
+
+# Database sepcific configuration
+database:
+  # Currently, this bot supports only MySql (MariaDB).
+  # But when more database bindings are available, here
+  # you can choose which one to use.
+  type: "mysql"
+  # MySQL (MariaDB) configuration
+  mysql:
+    # Host address of the database
+    host: "mysql.example.com"
+    # Username of the database account
+    user: "shinpuru"
+    # Password for the used database account
+    password: "5up3rb4dp455w0rd"
+    # Database name
+    database: "shinpuru"
+
+# Caching prefrences.
+cache:
+  # Redis connection configuration.
+  redis:
+    # Redis host address
+    addr: "localhost:6379"
+    # Redis password
+    password: "myredispassword"
+    # Database type
+    type: 0
+  # If enabled, most frequently used database
+  # requests are automatically cached in redis
+  # to minimize load on the database as well as
+  # request times.
+  # It is recomendet to leave this enabled. If
+  # you want to disable it for whatever reason,
+  # you can do it here.
+  cachedatabase: true
+
+# Logging preferences
+logging:
+  # Print log output each time a command is called
+  commandlogging: true
+  # Set the log level of the logger
+  # Log levels can be found here:
+  # https://github.com/op/go-logging/blob/master/level.go#L20
+  loglevel: 4
+
+# Storage interface configuration
+storage:
+  # Here you can chose between 'file' or
+  # 'minio' as storage interfaces.
+  # Minio also supprts connecting to Amazon S3
+  # or google Cloud.
+  type: "minio"
+  # Minio interface configuration
+  minio:
+    # Endpoint address of the storage
+    endpoint: "minio.exmaple.com"
+    # Storage access key
+    accesskey: "my_minio_access_key"
+    # Storage access secret
+    accesssecret: "my_minio_access_secret"
+    # Main location to be used
+    location: "us-east-1"
+    # Use HTTPS for API calls
+    secure: true
+  # File interface configuration
+  file:
+    # Local location of the data storage
+    location: ./data
+
+# Web server configuration
+webserver:
+  # Whether to expose web server and REST API
+  enabled: true
+  # Address to expose web server to
+  addr: 0.0.0.0:8080
+  # secret to sign API JWTs with
+  apitokenkey: CuNsIsHOE8ItrCXKsbGx453REpywRqVd
+  # TLS configuration
+  tls:
+    # Use TLS (HTTPS)
+    enabled: false
+    # TLS certificate location
+    cert: "/etc/cert/mycert.pem"
+    # TLS keyfile location
+    key: "/etc/cert/mykey.pem"
+  # The address, the web server will be accessable
+  # This value MUST be the same address as configured
+  # in the OAuth2 preferences of your bots application
+  publicaddr: "https://shinpuru.example.com"
+  # Debug address which is set during debugging as
+  # CORS origin domain.
+  debugpublicaddr: "http://localhost:8081"
+  # Ratelimit configuration
+  ratelimit:
+    # Whether or not to enable rate limiter
+    enabled: true
+    # Burst defines max requests in the given duration.
+    # This value should not be that low, because first
+    # connections to the API via the web interface might
+    # require a lot of requests to be processed.
+    burst: 50
+    # The reset duration until a request token is restored.
+    limitseconds: 3
+  # Access token configuration.
+  accesstoken:
+    # Secret used to sign JWT access tokens. This must be set when
+    # you want to loadbalance bwetween multiple instances of shinpuru.
+    # If not specified, the signing key will be randomly generated
+    # on startup.
+    secret: 'HH6rXYvAzRbbDX*$)xwF&G@xnUx6S9^H)V#HLj(jNn7PB9ozxA)AnZNfitYWr)(p'
+    # Specify the access token lifetime in seconds.
+    # If not specified, this defaults to 600 seconds.
+    lifetimeseconds: 600
+  # The hCaptcha credentials used for user validation.
+  # Obtainable from https://dashboard.hcaptcha.com/overview
+  captcha:
+    # Captcha Site Key
+    sitekey: "20000000-ffff-ffff-ffff-000000000002"
+    # Captcha Account Secret Key
+    secretkey: "0x0000000000000000000000000000000000000000"
+
+# Credentials of the twitch app to connect to the
+# twitch API
+# You can register a twitch API app and get the
+# credentials from this page:
+# https://glass.twitch.tv/console/apps
+twitchapp:
+  # Client ID
+  clientid: "zcwbsvg71qmo6to9813jkdvsh1rch4"
+  # Client Secret
+  clientsecret: "nlf6pl00vf4hz4oszgxytlpo9q6h52"
+
+# Giphy API configuration.
+giphy:
+  # API key for the Giphy REST API.
+  # This can be obtained by creating an API app here:
+  # https://developers.giphy.com/dashboard/
+  apikey: "dWl3ZXF6diBzZGR0NnczNDg5NTZuZG4w"
+
+# Prometheus metrics endpoint configuration
+metrics:
+  # Whether or not to enable the prometheus
+  # metrics and HTTP endpoint
+  enable: true
+  # The address the metrics HTTP server binds
+  # to. This is defaultly ":9091" if not
+  # specified
+  addr: ":9091"
+
+# Time Schedule specifications.
+# Time schedules are specified using the crontab
+# syntax:
+#   second minute hour month dom dow
+# Read this to get more information:
+# https://pkg.go.dev/github.com/robfig/cron/v3#hdr-Usage
+schedules:
+  # Guild backup schedule
+  guildbackups:        '0 0 6,18 * * *'
+  # Refresh token cleanup schedule
+  refreshtokencleanup: '0 0 5 * * *'
+
+# Code Execution configuration.
+# Available types are:
+#  - jdoodle
+#  - ranna
+#
+# When using type 'jdoodle', you don't need to
+# specify credentials here because they are set
+# on a per guild basis.
+codeexec:
+  # Code execution engine type.
+  type: ranna
+  # Ranna instance configutaion.
+  ranna:
+    apiversion: v1
+    endpoint: 'https://public.ranna.dev'
+    token: ''
+  # Rate limit configuration per user
+  # for running code in chat.
+  ratelimit:
+    # Whether or not to enable the rate limiting.
+    enabled: true
+    # The burst rate of the limiter.
+    burst: 5
+    # The time in seconds between regeneration
+    # of rate limiter tokens.
+    limitseconds: 60
+
+# Privacy information and contact details
+# which are shown in the /info command as well
+# as in the web interface.
+privacy:
+  # URL to your privacy notice.
+  # DO NOT USE THE NOTICE BELOW BECAUSE IT IS ONLY
+  # VALID FOR THE OFFICAL HOST OF SHINPURU!
+  noticeurl: https://github.com/MK-Mods-OFC/Los-Templarios/blob/master/PRIVACY.md
+  # Contact details.
+  contact:
+      # Title of the contact type
+    - title: E-Mail
+      # The displayed value
+      value: contact@example.de
+      # An optional link URL
+      url: "mailto:contact@example.de"

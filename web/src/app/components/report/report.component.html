@@ -1,0 +1,65 @@
+<div class="report-container">
+    <p class="type-heading" [style.background-color]="typeColor">
+        {{ report.type_name.toUpperCase() }}
+    </p>
+    <div class="inner-container">
+        <div class="row">
+            <div class="col">
+                <h4>Ejecutador</h4>
+                <div *ngIf="report.executor; else executorid" class="d-flex">
+                    <img class="avi" [src]="report.executor?.avatar_url | discordAsset: '':32" />
+                    <div>
+                        <p>
+                            {{ report.executor?.username }}#{{ report.executor?.discriminator }}
+                        </p>
+                        <p class="small">{{ report.executor.id }}</p>
+                    </div>
+                </div>
+                <ng-template #executorid>
+                    <p>{{ report.executor_id }}</p>
+                </ng-template>
+            </div>
+            <div class="col">
+                <h4>Victima</h4>
+                <div *ngIf="report.victim; else victimid" class="d-flex">
+                    <img class="avi" [src]="report.victim?.avatar_url | discordAsset: '':32" />
+                    <div>
+                        <p>
+                            {{ report.victim?.username }}#{{ report.victim?.discriminator }}
+                        </p>
+                        <p class="small">{{ report.victim.id }}</p>
+                    </div>
+                </div>
+                <ng-template #victimid>
+                    <p>{{ report.victim_id }}</p>
+                </ng-template>
+            </div>
+        </div>
+
+        <h4 class="mt-4">Razón</h4>
+        <p>{{ report.message }}</p>
+
+        <div *ngIf="report.attachment_url">
+            <h4 class="mt-4">Archivos adjuntos</h4>
+            <div *ngIf="isDiscordAttachment(report.attachment_url); else attachmentimage">
+                <p>
+                    El archivo adjunto se presenta a través de un archivo adjunto de mensaje de Discord y solo se puede ver dentro del cliente de Discord. Copie el enlace a continuación y péguelo dentro del chat de Discord para ver la imagen adjunta.
+                </p>
+                <input type="text" readonly class="url" (click)="$event.target.select()" value="{{ report.attachment_url }}" />
+            </div>
+            <ng-template #attachmentimage>
+                <img class="mw-100" [src]="report.attachment_url" />
+            </ng-template>
+        </div>
+
+        <p class="footer">
+            Case-ID: {{ report.id }}&nbsp;&nbsp;|&nbsp;&nbsp; Created {{ dateFormat(report.created) }}&nbsp;&nbsp;|
+            <span *ngIf="report.timeout">&nbsp;&nbsp; Tiempos fuera en
+        {{ dateFormat(report.timeout) }}
+        &nbsp;&nbsp;|
+      </span>
+            <span *ngIf="allowRevoke">&nbsp;&nbsp;<a (click)="revoke.emit()">Informe de revocación</a></span
+      >
+    </p>
+  </div>
+</div>
